@@ -6,7 +6,8 @@ import usbtmc
 import time
 instr = usbtmc.Instrument(0x1ab1,0x04b1)
 fileNum = 1
-#set up instrument
+
+#Set up instrument
 instr.write(":WAV:SOUR CHAN1")
 instr.write(":WAV:MODE NORM")
 #Start cosmic ray recording
@@ -19,6 +20,7 @@ while instr.ask(":FUNC:WREC:OPER?") == u'REC':
 	n += 10
 	print(str(n) + " minutes passed")
 print("Data collection finished")
+
 #Make the first sequential directory "Run #" that we don't have
 while os.path.exists("./Run " + str(fileNum)):
 	fileNum += 1
@@ -27,11 +29,14 @@ while os.path.exists("./Run " + str(fileNum)):
 		fileNum += 1
 #cd into that directory
 os.chdir("./Run " + str(fileNum))
+
 #Select particles that look like muons
 instr.write("FUNC:WRM ANAL")
 instr.write("FUNC:WAN:STAR")
 print("Analyzing data")
 time.sleep(60)
+
+#Begin saving muons
 totalFrames = int(instr.ask(":FUNC:WAN:EFC?"))
 instr.write(":FUNC:WAN:SET:SST:")
 print("Saving muons")
@@ -44,5 +49,4 @@ for i in range(totalFrames):
 	file.close()
 	time.sleep(0.1)
 	instr.write(":FUNC:WAN:NEXT")
-os.chdir("../")
-print("Next data set...")
+
